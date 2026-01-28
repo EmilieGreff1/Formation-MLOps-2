@@ -19,11 +19,11 @@ jobs:
           pip install -r requirements.txt
       - name: Install dev dependencies
         run:  pip install -r requirements_test.txt
+      - name: Install package in editable mode
+        run:  pip install -e .
       - name: Run Linter
-        run:  "Trainee should add command to run flake8"
+        run:  flake8 formation_indus_ds_avancee/ dags/ scripts/ tests/
       - name: Run Vulture
-        run:  "Trainee should add command to run vulture"
+        run:  vulture formation_indus_ds_avancee/ dags/ scripts/ --min-confidence 80
       - name: Run tests
-        run:  "Trainee should add command to run test"
-
-
+        run:  python -m pytest --cov=formation_indus_ds_avancee/ tests/test_unit/ -vv -p no:warnings
