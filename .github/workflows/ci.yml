@@ -24,19 +24,15 @@ jobs:
           pip install -r requirements_test.txt
           pip install -e .
 
-      # ============ UNIT TESTS ============
-      - name: Run unit tests
-        run: |
-          pytest tests/test_unit/ -vv -p no:warnings
+      - name: Run Unit Tests
+        run: pytest tests/test_unit/ -vv -p no:warnings
 
-      # ============ FUNCTIONAL TESTS ============
-      - name: Run functional tests
-        run: |
-          behave tests/test_functional/features
+      - name: Run Functional Tests
+        run: behave tests/test_functional/features
 
   quality:
     runs-on: ubuntu-latest
-    needs: build   # ⬅️ qualité seulement si le build passe
+    needs: build
 
     steps:
       - uses: actions/checkout@v3
@@ -54,37 +50,24 @@ jobs:
           pip install -r requirements_test.txt
           pip install -e .
 
-      # ============ STYLE ============
       - name: Run Flake8
-        run: |
-          flake8 formation_indus_ds_avancee/ tests/
+        run: flake8 formation_indus_ds_avancee/ tests/
 
-      # ============ QUALITY ============
       - name: Run Pylint
-        run: |
-          pylint formation_indus_ds_avancee/ \
-                 --exit-zero \
-                 --score=yes \
-                 --min-score=7
+        run: pylint formation_indus_ds_avancee/ --exit-zero --score=y
 
-      # ============ SECURITY ============
       - name: Run Bandit
-        run: |
-          bandit -r formation_indus_ds_avancee/ -f txt
+        run: bandit -r formation_indus_ds_avancee/ -f txt
 
-      # ============ DEAD CODE ============
       - name: Run Vulture
-        run: |
-          vulture formation_indus_ds_avancee/ --min-confidence 80
+        run: vulture formation_indus_ds_avancee/ --min-confidence 80
 
-      # ============ COMPLEXITY ============
       - name: Check Code Complexity
         run: |
           radon cc formation_indus_ds_avancee/ -a -nb
           radon mi formation_indus_ds_avancee/ -nb
 
-      # ============ COVERAGE ============
-      - name: Coverage
+      - name: Unit Test Coverage
         run: |
           pytest tests/test_unit/ \
             --cov=formation_indus_ds_avancee \
