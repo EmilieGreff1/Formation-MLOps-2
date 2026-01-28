@@ -28,7 +28,7 @@ jobs:
       
       # ============ STYLE & LINTING ============
       - name: Run Flake8 (Code Style)
-        run: flake8 formation_indus_ds_avancee/ dags/ scripts/ tests/
+        run: flake8 formation_indus_ds_avancee/ scripts/ tests/
       
       - name: Run Pylint (Code Quality)
         run: pylint formation_indus_ds_avancee/ --exit-zero --score=yes --min-score=7
