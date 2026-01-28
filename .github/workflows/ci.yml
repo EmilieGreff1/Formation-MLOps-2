@@ -24,11 +24,6 @@ jobs:
           pip install -r requirements_test.txt
           pip install -e .
 
-      - name: Run Unit Tests
-        run: pytest tests/test_unit/ -vv -p no:warnings
-
-      - name: Run Functional Tests
-        run: behave tests/test_functional/features
 
   quality:
     runs-on: ubuntu-latest
@@ -66,10 +61,14 @@ jobs:
         run: |
           radon cc formation_indus_ds_avancee/ -a -nb
           radon mi formation_indus_ds_avancee/ -nb
-
+  tests: 
       - name: Unit Test Coverage
         run: |
           pytest tests/test_unit/ \
             --cov=formation_indus_ds_avancee \
             --cov-report=term \
-            --cov-fail-under=80
+            --cov-fail-under=80       
+      - name: Run Unit Tests
+        run: pytest tests/test_unit/ -vv -p no:warnings
+      - name: Run Functional Tests
+        run: behave tests/test_functional/features
