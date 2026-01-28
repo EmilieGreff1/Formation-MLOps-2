@@ -8,22 +8,74 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Set up Python ${{ matrix.python-version }}
+      
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.10"
-          cache: 'pip' # caching pip dependencies
+          cache: 'pip'
+      
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+      
       - name: Install dev dependencies
-        run:  pip install -r requirements_test.txt
-      - name: Run Linter
-        run: flake8 formation_indus_ds_avancee
-      - name: Run Vulture
-        run: vulture formation_indus_ds_avancee scripts --min-confidence 100
-      - name: Run tests
-        run: python -m pytest tests/test_unit
-      # Add behave command
-
+        run: pip install -r requirements_test.txt
+      
+      - name: Install package in editable mode
+        run: pip install -e .
+      
+      # ============ STYLE & LINTING ============
+      - name: Run Flake8 (Code Style)
+        run: flake8 formation_indus_ds_avancee/ dags/ scripts/ tests/
+      
+      - name: Run Pylint (Code Quality)
+        run: pylint formation_indus_ds_avancee/ --exit-zero --score=yes --min-score=7
+        continue-on-error: true
+      
+      # ============ SECURITY ============
+      - name: Run Bandit (Security)
+        run: bandit -r formation_indus_ds_avancee/ -f json -o bandit-report.json
+        continue-on-error: true
+      
+      # ============ DEAD CODE ============
+      - name: Run Vulture (Dead Code)
+        run: vulture formation_indus_ds_avancee/ dags/ scripts/ --min-confidence 80
+      
+      # ============ COMPLEXITY ============
+      - name: Check Code Complexity
+        run: |
+          radon cc formation_indus_ds_avancee/ -a -nb
+          radon mi formation_indus_ds_avancee/ -nb
+        continue-on-error: true
+      
+      # ============ TESTS & COVERAGE ============
+      - name: Run Tests with Coverage
+        run: |
+          python -m pytest --cov=formation_indus_ds_avancee/ \
+                           --cov-report=xml \
+                           --cov-report=term \
+                           --cov-fail-under=80 \
+                           tests/test_unit/ -vv -p no:warnings
+      
+      # ============ COVERAGE REPORT ============
+      - name: Upload Coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage.xml
+          fail_ci_if_error: false
+      
+      - name: Coverage Report Summary
+        run: |
+          coverage report
+          coverage html
+      
+      # ============ QUALITY GATE ============
+      - name: Quality Gate
+        run: |
+          echo "✅ Code Style: Passed (Flake8)"
+          echo "✅ Dead Code: Passed (Vulture)"
+          echo "✅ Tests: Passed"
+          echo "✅ Coverage: $(coverage report | tail -1 | awk '{print $4}')"
+          echo "🎉 Quality Gate: PASSED"
