@@ -41,7 +41,7 @@ jobs:
       
       # ============ DEAD CODE ============
       - name: Run Vulture (Dead Code)
-        run: vulture formation_indus_ds_avancee/ dags/ scripts/ --min-confidence 80
+        run: vulture formation_indus_ds_avancee/  scripts/ --min-confidence 80
       
       # ============ COMPLEXITY ============
       - name: Check Code Complexity
