@@ -18,9 +18,15 @@ def monitor_with_io(predictions_folder: str, db_con_str: str, monitoring_table_n
     monitoring_df.to_sql(monitoring_table_name, con=db_conn, if_exists='append', index=False)
     db_conn.close()
 
-
 def monitor(latest_predictions: pd.DataFrame) -> pd.DataFrame:
-    # Start filling function
-    monitoring_df = pd.DataFrame
-    # End filling function
+
+    mean_value = latest_predictions['predictions'].mean()
+    
+    datetime_value = latest_predictions['predictions_time'].max()
+    
+    monitoring_df = pd.DataFrame({
+        'datetime': [datetime_value],
+        'mean_prediction': [mean_value]
+    })
+    
     return monitoring_df
